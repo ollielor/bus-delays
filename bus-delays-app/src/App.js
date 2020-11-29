@@ -3,6 +3,7 @@ import axios from 'axios';
 import Container from 'react-bootstrap/Container';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { useTable } from 'react-table';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -14,10 +15,26 @@ const App = () => {
   const [lineNumbersLoaded, setLineNumbersLoaded] = useState(false);
   const [filteredByLineNumbers, setFilteredByLineNumbers] = useState(false);
   const [directions, setDirections] = useState([]);
+  const [averageTotal, setAverageTotal] = useState(0);
+  const [averageFiltered, setAverageFiltered] = useState(0);
+  const [lineNumber, setLineNumber] = useState('');
+  const [direction, setDirection] = useState('');
 
   useEffect(() => {
     fetchData();
   }, [])
+
+  useEffect(() => {
+    setAverageTotal(cleanValues(originalData));
+    setAverageFiltered(cleanValues(data));
+  }, [data, originalData])
+
+  const cleanValues = (array) => {
+    const delays = array.map(d => d.delay);
+    const delaysCleaned = delays.filter(delay => !!delay);
+    const delaysParsed = delaysCleaned.map(delay => parseInt(delay));
+    return delaysParsed.reduce((a, b) => a + b, 0) / delaysParsed.length;
+  }
 
   useEffect(() => {
     setLineNumbersLoaded(false);
@@ -28,6 +45,8 @@ const App = () => {
   }, [originalData]);
   
   const fetchData = () => {
+      setLineNumber('');
+      setDirection('');
       axios.get('http://localhost:8080/alldepartures')
       .then(response => {
         setData(response.data.allDepartures)
@@ -39,6 +58,7 @@ const App = () => {
   }
 
   const filterByLineNumber = (e) => {
+    setLineNumber(e.target.value);
     setData(originalData.filter(d => d.line === e.target.value));
     const dirs = originalData.filter(d => d.line === e.target.value).map(d => d.direction);
     const directionsWithoutDuplicates = dirs.filter((direction, index) => dirs.indexOf(direction) === index);
@@ -46,7 +66,8 @@ const App = () => {
   }
 
   const filterByLineNumberAndDirection = (e) => {
-    setData(originalData.filter(d => d.direction === e.target.value));
+    setDirection(e.target.value);
+    setData(originalData.filter(d => d.direction === e.target.value && d.line === lineNumber));
   }
 
   const columns = useMemo(() => [
@@ -59,7 +80,7 @@ const App = () => {
         accessor: 'direction',
       },
       {
-        Header: 'Myöhässä',
+        Header: 'Myöhässä (sekuntia)',
         accessor: 'delay'
       }
     ],
@@ -85,16 +106,16 @@ const App = () => {
   return (
     <>
       <Container style={{padding: 30}}>
-        {console.log(directions)}
         <Row>
           <Col>
             <h1>Bussien myöhästymiset pysäkillä U Uhlandstraße (Berliini)</h1>
+            <div></div>
 
-            <h2>Suodata tuloksia</h2>
+            <h3>Suodata tuloksia</h3>
 
             {lineNumbersLoaded ?
             <div>
-              <select id='linenumber' onChange={e => filterByLineNumber(e)}>
+              <select id='linenumber' onChange={e => filterByLineNumber(e)} value={lineNumber}>
               <option>Linjanumero:</option>
               {lineNumbers.map((lineNumber, index) => (
                 <option key={index} value={lineNumber}>{lineNumber}</option>
@@ -106,7 +127,7 @@ const App = () => {
 
             {directions ?
             <div>
-              <select id='direction' onChange={e => filterByLineNumberAndDirection(e)}>
+              <select id='direction' onChange={e => filterByLineNumberAndDirection(e)} value={direction}>
               <option>Määränpää:</option>
               {directions.map((direction, index) => (
                 <option key={index} value={direction}>{direction}</option>
@@ -115,6 +136,11 @@ const App = () => {
             </div>
             :
             <div>Ladataan määränpäitä...</div>}
+
+            <Button onClick={fetchData}>Poista suodattimet</Button>
+
+            <div>Suodatettujen lähtöjen myöhästymisten keskiarvo: {averageFiltered.toFixed(2)} sekuntia</div>
+            <div>Kaikkien pysäkin lähtöjen myöhästymisten keskiarvo: {averageTotal.toFixed(2)} sekuntia</div>
 
    <Table striped bordered hover {...getTableProps()}>
 
