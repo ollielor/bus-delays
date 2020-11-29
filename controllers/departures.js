@@ -12,7 +12,6 @@ exports.getDepartures = (req, res, next) => {
          console.log(onlyBuses);
          const busesByLine = onlyBuses.map(busDeparture => {return {line: busDeparture.line.name, delay: busDeparture.delay !== null && busDeparture.delay}})
          console.log(busesByLine);
-         let bus;
          for (let i=0; i < busesByLine.length; i++) {
             const busInfo = new Bus({
                line: busesByLine[i].line,
@@ -34,4 +33,43 @@ setInterval(this.getDepartures, 300000);
 
 const filterBuses = (departure) => {
    return departure.filter(d => d.line.mode === 'bus')
+}
+
+exports.getAllDepartures = (req, res, next) => {
+   Bus.find()
+      .then(busDepartures => {
+         res.status(200).json({data: busDepartures})
+      })
+      .catch(error => {
+         console.log(error);
+      })
+}
+
+exports.getAverageDelay = (req, res, next) => {
+   Bus.find()
+      .then(busDepartures => {
+         const delays = busDepartures.map(busDeparture => parseInt(busDeparture.delay));
+         console.log(delays);
+         const onlyIntegers = delays.filter(delay => !isNaN(delay));
+         const sumDelays = onlyIntegers.reduce((a, b) => a + b, 0);
+         console.log(sumDelays)
+         console.log(onlyIntegers.length)
+         const average = sumDelays / onlyIntegers.length;
+         res.status(200).json({
+            averageDelay: average
+         })
+      })
+}
+
+exports.getLines = (req, res, next) => {
+   Bus.find()
+      .then(busDepartures => {
+         const lineNumbers = busDepartures.map(busDeparture => busDeparture.line);
+         console.log(lineNumbers)
+         const lineNumbersWithoutDuplicates = lineNumbers.filter((lineNumber, index) => lineNumbers.indexOf(lineNumber) === index);
+         console.log(lineNumbersWithoutDuplicates);
+         res.status(200).json({
+            lineNumbers: lineNumbersWithoutDuplicates
+         })
+      })
 }

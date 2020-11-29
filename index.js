@@ -13,7 +13,7 @@ app.use((req, res, next) => {
    next();
 });
 
-app.get('/departures', departureRoutes);
+app.use('/', departureRoutes);
 
 mongoose
     .connect('mongodb+srv://bus-delays:6EzapHTfaUFrmU9R@bus-delays.ajnq6.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
