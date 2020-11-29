@@ -3,19 +3,15 @@ const Bus = require('../models/bus');
 const axios = require('axios');
 
 exports.getDepartures = (req, res, next) => {
-   console.log('getDepartures ran')
    axios.get('https://v5.bvg.transport.rest/stops/900000023301/departures?duration=5')
       .then(response => {
-         console.log(response.data)
          // handle success
          const onlyBuses = filterBuses(response.data);
-         console.log(onlyBuses);
          const busesByLine = onlyBuses.map(busDeparture => {return {
             line: busDeparture.line.name, 
             delay: busDeparture.delay, 
             direction: busDeparture.direction
          }})
-         console.log(busesByLine);
          for (let i=0; i < busesByLine.length; i++) {
             const busInfo = new Bus({
                line: busesByLine[i].line,
@@ -53,22 +49,6 @@ exports.getAllDepartures = (req, res, next) => {
          console.log(error);
       })
 }
-
-/*exports.getLines = (req, res, next) => {
-   Bus.find()
-      .then(busDepartures => {
-         const lineNumbers = busDepartures.map(busDeparture => busDeparture.line);
-         console.log(lineNumbers)
-         const lineNumbersWithoutDuplicates = lineNumbers.filter((lineNumber, index) => lineNumbers.indexOf(lineNumber) === index);
-         console.log(lineNumbersWithoutDuplicates);
-         res.status(200).json({
-            lineNumbers: lineNumbersWithoutDuplicates
-         })
-      })
-      .catch(error => {
-         console.log(error);
-      })
-};*/
 
 exports.deleteDocuments = (req, res, next) => {
    Bus.deleteMany({})

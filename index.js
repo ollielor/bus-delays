@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose');
 const port = 8080;
+require('dotenv').config();
 
 const departureRoutes = require('./routes/departures');
 
@@ -16,7 +17,7 @@ app.use((req, res, next) => {
 app.use('/', departureRoutes);
 
 mongoose
-    .connect('mongodb+srv://bus-delays:6EzapHTfaUFrmU9R@bus-delays.ajnq6.mongodb.net/<dbname>?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(result => {
         app.listen(port);
     })
