@@ -7,6 +7,7 @@ import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { useTable } from 'react-table';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import moment from 'moment';
 
 const App = () => {
   const [data, setData] = useState([]);
@@ -82,6 +83,11 @@ const App = () => {
       {
         Header: 'Myöhässä (sekuntia)',
         accessor: 'delay'
+      },
+      {
+        Header: 'Tallennusajankohta',
+        accessor: 'createdAt',
+        Cell: creationTime => moment(new Date(creationTime.value)).format("DD.MM.YYYY HH:mm")
       }
     ],
     []
