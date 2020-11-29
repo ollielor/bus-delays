@@ -4,12 +4,12 @@ const departureController = require('../controllers/departures')
 
 const router = express.Router();
 
-router.get('/departures', departureController.getDepartures);
+//router.get('/departures', departureController.getDepartures);
 
 router.get('/alldepartures', departureController.getAllDepartures);
 
-router.get('/average', departureController.getAverageDelay);
+//router.get('/lines', departureController.getLines);
 
-router.get('/lines', departureController.getLines);
+router.get('/delete', departureController.deleteDocuments);
 
 module.exports = router;

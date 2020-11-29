@@ -8,6 +8,9 @@ const busSchema = new Schema({
     },
     delay: {
        type: String,
+    },
+    direction: {
+      type: String,
     }
 }, { timestamps: true });
 

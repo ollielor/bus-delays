@@ -4,18 +4,23 @@ const axios = require('axios');
 
 exports.getDepartures = (req, res, next) => {
    console.log('getDepartures ran')
-   axios.get('https://v5.bvg.transport.rest/stops/900000023301/departures')
-      .then((response) => {
+   axios.get('https://v5.bvg.transport.rest/stops/900000023301/departures?duration=5')
+      .then(response => {
          console.log(response.data)
          // handle success
          const onlyBuses = filterBuses(response.data);
          console.log(onlyBuses);
-         const busesByLine = onlyBuses.map(busDeparture => {return {line: busDeparture.line.name, delay: busDeparture.delay !== null && busDeparture.delay}})
+         const busesByLine = onlyBuses.map(busDeparture => {return {
+            line: busDeparture.line.name, 
+            delay: busDeparture.delay, 
+            direction: busDeparture.direction
+         }})
          console.log(busesByLine);
          for (let i=0; i < busesByLine.length; i++) {
             const busInfo = new Bus({
                line: busesByLine[i].line,
-               delay: busesByLine[i].delay
+               delay: busesByLine[i].delay,
+               direction: busesByLine[i].direction
             })
             busInfo.save();
          }
@@ -29,6 +34,8 @@ exports.getDepartures = (req, res, next) => {
    });
 }
 
+// Executed on start and then every 5 minutes
+this.getDepartures();
 setInterval(this.getDepartures, 300000);
 
 const filterBuses = (departure) => {
@@ -38,26 +45,12 @@ const filterBuses = (departure) => {
 exports.getAllDepartures = (req, res, next) => {
    Bus.find()
       .then(busDepartures => {
-         res.status(200).json({data: busDepartures})
+         res.status(200).json({
+            allDepartures: busDepartures
+         })
       })
       .catch(error => {
          console.log(error);
-      })
-}
-
-exports.getAverageDelay = (req, res, next) => {
-   Bus.find()
-      .then(busDepartures => {
-         const delays = busDepartures.map(busDeparture => parseInt(busDeparture.delay));
-         console.log(delays);
-         const onlyIntegers = delays.filter(delay => !isNaN(delay));
-         const sumDelays = onlyIntegers.reduce((a, b) => a + b, 0);
-         console.log(sumDelays)
-         console.log(onlyIntegers.length)
-         const average = sumDelays / onlyIntegers.length;
-         res.status(200).json({
-            averageDelay: average
-         })
       })
 }
 
@@ -71,5 +64,18 @@ exports.getLines = (req, res, next) => {
          res.status(200).json({
             lineNumbers: lineNumbersWithoutDuplicates
          })
+      })
+      .catch(error => {
+         console.log(error);
+      })
+};
+
+exports.deleteDocuments = (req, res, next) => {
+   Bus.deleteMany({})
+      .then(result => {
+         console.log(result);
+      })
+      .catch(error => {
+         console.log(error);
       })
 }
