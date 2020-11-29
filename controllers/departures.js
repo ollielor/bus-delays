@@ -54,7 +54,7 @@ exports.getAllDepartures = (req, res, next) => {
       })
 }
 
-exports.getLines = (req, res, next) => {
+/*exports.getLines = (req, res, next) => {
    Bus.find()
       .then(busDepartures => {
          const lineNumbers = busDepartures.map(busDeparture => busDeparture.line);
@@ -68,7 +68,7 @@ exports.getLines = (req, res, next) => {
       .catch(error => {
          console.log(error);
       })
-};
+};*/
 
 exports.deleteDocuments = (req, res, next) => {
    Bus.deleteMany({})
